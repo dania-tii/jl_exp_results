@@ -64,7 +64,7 @@ def gnn(data):
     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False, drop_last=False, pin_memory=True, num_workers=0)
     steps_per_epoch = len(test_loader)  # Calculate steps per epoch based on the training data loader
     # Load trained model
-    model_path = 'trained_model_seed1_GAT_cartesian_knnfc_minmax_400hybrid_combined.pth'
+    model_path = 'trained_model_GAT_cartesian_knnfc_minmax_400hybrid_combined.pth'
     model, optimizer, scheduler, criterion = initialize_model(device, gnn_params, steps_per_epoch)
     model.load_state_dict(torch.load(model_path))
     # Predict jammer position
