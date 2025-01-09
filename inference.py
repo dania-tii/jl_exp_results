@@ -61,11 +61,10 @@ def gnn(data):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # Initialize data loader
     test_dataset = TemporalGraphDataset(data, test=True, discretization_coeff=1.0)
-    test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False, drop_last=False, pin_memory=True, num_workers=0)
-    steps_per_epoch = len(test_loader)  # Calculate steps per epoch based on the training data loader
+    test_loader = DataLoader(test_dataset, batch_size=gnn_params['batch_size'], shuffle=False, drop_last=False, pin_memory=True, num_workers=gnn_params['num_workers'])
     # Load trained model
     model_path = 'trained_model_GAT_cartesian_knnfc_minmax_400hybrid_combined.pth'
-    model, optimizer, scheduler, criterion = initialize_model(device, gnn_params, steps_per_epoch)
+    model, optimizer, scheduler, criterion = initialize_model(device, gnn_params, len(test_loader))
     model.load_state_dict(torch.load(model_path))
     # Predict jammer position
     predictions, _, _ = validate(model, test_loader, criterion, device, test_loader=True)
