@@ -28,7 +28,10 @@ def generate_dummy_data(num_nodes, jammer_position, P_tx_jammer, G_tx_jammer, pa
     x = r * np.cos(theta) + jammer_position[0]
     y = r * np.sin(theta) + jammer_position[1]
     node_positions = np.vstack((x, y)).T
-    distances = r
+
+    # Calculate Euclidean distances from each node to the jammer
+    distances = np.sqrt((x - jammer_position[0]) ** 2 + (y - jammer_position[1]) ** 2)
+
     node_noise = calculate_noise(distances, P_tx_jammer, G_tx_jammer, path_loss_exponent, shadowing)
     data = pd.DataFrame({
         'node_positions': [node_positions.tolist()],
