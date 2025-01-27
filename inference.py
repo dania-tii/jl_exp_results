@@ -84,7 +84,7 @@ print(f"Ptx jammer: {jammer_ptx}, Gtx jammer: {jammer_gtx}, PL: {plexp}, Sigma: 
 
 data = generate_dummy_data(num_samples, jammer_pos, jammer_ptx, jammer_gtx, plexp, sigma)
 predicted_jammer_pos = gnn(data)
-# plot_positions(data, jammer_pos, predicted_jammer_pos)
+plot_positions(data, jammer_pos, predicted_jammer_pos)
 rmse = calculate_rmse(predicted_jammer_pos, jammer_pos)
 print("Predicted Jammer Position:", predicted_jammer_pos)
 print(f"RMSE: {round(rmse, 2)} m")
