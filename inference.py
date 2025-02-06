@@ -56,22 +56,22 @@ def calculate_rmse(predicted_position, actual_position):
     rmse = np.sqrt(mean_squared_error([actual_position], [predicted_position[0]]))
     return rmse
 
-def gnn(data):
+def gnn(data, plexp):
     gnn_params.update({'inference': True})
-    # Add jammed column
     data = add_jammed_column(data, threshold=-55)
-    # Set the device to use for computations
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # Initialize data loader
     test_dataset = TemporalGraphDataset(data, test=True, discretization_coeff=1.0)
     test_loader = DataLoader(test_dataset, batch_size=gnn_params['batch_size'], shuffle=False, drop_last=False, pin_memory=True, num_workers=gnn_params['num_workers'])
-    # Load trained model
     model_path = 'trained_model_GAT_cartesian_knnfc_minmax_400hybrid_combined.pth'
     model, optimizer, scheduler, criterion = initialize_model(device, gnn_params, len(test_loader))
     model.load_state_dict(torch.load(model_path))
-    # Predict jammer position
     predictions, _, _ = validate(model, test_loader, criterion, device, test_loader=True)
-    return predictions
+    predicted_position, predicted_P_tx_jammer = predictions[0], predictions[2]
+    distance = calculate_interference_range(predicted_P_tx_jammer, plexp)
+    return predicted_position, predicted_P_tx_jammer, distance
+
+def calculate_interference_range(P_tx_jammer, path_loss_exponent, RSSI_threshold=-50):
+    return 10 ** ((P_tx_jammer - RSSI_threshold) / (10 * path_loss_exponent))
 
 # Example usage
 num_samples = 1000
@@ -83,7 +83,7 @@ sigma = np.random.uniform(2, 6)
 print(f"Ptx jammer: {jammer_ptx}, Gtx jammer: {jammer_gtx}, PL: {plexp}, Sigma: {sigma}")
 
 data = generate_dummy_data(num_samples, jammer_pos, jammer_ptx, jammer_gtx, plexp, sigma)
-predicted_jammer_pos = gnn(data)
+predicted_jammer_pos, predicted_jammer_ptx, predicted_distance = gnn(data, plexp)
 plot_positions(data, jammer_pos, predicted_jammer_pos)
 rmse = calculate_rmse(predicted_jammer_pos, jammer_pos)
 print("Predicted Jammer Position:", predicted_jammer_pos)
