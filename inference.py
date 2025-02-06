@@ -70,7 +70,7 @@ def gnn(data, plexp):
     distance = calculate_interference_range(predicted_P_tx_jammer, plexp)
     return predicted_position, predicted_P_tx_jammer, distance
 
-def calculate_interference_range(P_tx_jammer, path_loss_exponent, RSSI_threshold=-50):
+def calculate_interference_range(P_tx_jammer, path_loss_exponent, RSSI_threshold=-55):
     return 10 ** ((P_tx_jammer - RSSI_threshold) / (10 * path_loss_exponent))
 
 # Example usage
