@@ -1207,9 +1207,20 @@ def create_torch_geo_data(instance: Instance) -> Data:
     edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
     edge_weight = torch.tensor(edge_weight, dtype=torch.float)
 
+    # jammer_positions = np.array(instance.jammer_position).reshape(-1, 2)  # Assuming this reshaping is valid based on your data structure
+
     if not params['inference']:
-        jammer_positions = np.array(instance.jammer_position).reshape(-1, 2)  # Assuming this reshaping is valid based on your data structure
+        # Assuming instance.jammer_position is a list or array that can be reshaped
+        jammer_positions = np.array(instance.jammer_position).reshape(-1, params['out_features'])
+
+        # Convert jammer_positions to a tensor
         y = torch.tensor(jammer_positions, dtype=torch.float)
+
+        # Convert instance.jammer_power to a tensor and reshape it to match the dimensions of y
+        jammer_power = torch.tensor(instance.jammer_power, dtype=torch.float).reshape(-1, 1)
+
+        # Concatenate jammer_power to y along the appropriate dimension
+        y = torch.cat((y, jammer_power), dim=1)
     else:
         y = None
 

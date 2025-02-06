@@ -160,13 +160,24 @@ def validate(model: torch.nn.Module, validate_loader: torch.utils.data.DataLoade
             output = model(data)
 
             if test_loader:
+                # Assuming the jammer power is the last element in each output tensor within the batch
+                # Extracting radius, sin theta, cos theta for predictions and actuals for the entire batch
+                predicted_coords_transformed = convert_output_eval(output[:, :-1], data, 'prediction', device)
+
+
+                # Including the jammer power predictions and actuals directly without adding an extra dimension
+                predicted_coords = torch.cat([predicted_coords_transformed, output[:, -1:]], dim=1)
+                predictions.append(predicted_coords.cpu().numpy())
                 predicted_coords = convert_output_eval(output, data, 'prediction', device)
                 predictions.append(predicted_coords.cpu().numpy())
 
                 if not params['inference']:
-                    actual_coords = convert_output_eval(data.y, data, 'target', device)
+                    actual_coords_transformed = convert_output_eval(data.y[:, :-1], data, 'target', device)
+                    actual_coords = torch.cat([actual_coords_transformed, data.y[:, -1:]], dim=1)
                     actuals.append(actual_coords.cpu().numpy())
+
                     loss = criterion(predicted_coords, actual_coords)
+
 
                 perc_completion_list.append(data.perc_completion.cpu().numpy())
             else:
@@ -177,8 +188,17 @@ def validate(model: torch.nn.Module, validate_loader: torch.utils.data.DataLoade
 
                 # Calculate RMSE for each graph in the batch
                 for idx in range(data.num_graphs):
-                    prediction = convert_output_eval(output[idx], data[idx], 'prediction', device)
-                    actual = convert_output_eval(data.y[idx], data[idx], 'target', device)
+                    # Transform the coordinates excluding the jammer power
+                    prediction_transformed = convert_output_eval(output[idx][:-1], data[idx], 'prediction', device)
+                    actual_transformed = convert_output_eval(data.y[idx][:-1], data[idx], 'target', device)
+
+                    # Ensure the jammer power is a tensor and reshape it to match dimensions
+                    jammer_power_pred = output[idx][-1].unsqueeze(0).unsqueeze(1)  # Makes it a 2D tensor by adding an extra dimension
+                    jammer_power_actual = data.y[idx][-1].unsqueeze(0).unsqueeze(1)  # Same as above
+
+                    # Concatenating along the second dimension (columns in a 2D case)
+                    prediction = torch.cat([prediction_transformed, jammer_power_pred], dim=1)
+                    actual = torch.cat([actual_transformed, jammer_power_actual], dim=1)
 
                     mse = mean_squared_error(actual.cpu().numpy(), prediction.cpu().numpy())
                     rmse = math.sqrt(mse)
