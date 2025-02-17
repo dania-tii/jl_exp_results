@@ -142,9 +142,6 @@ def main():
                     if val_loss < best_val_loss:
                         best_val_loss = val_loss
                         best_model_state = model.state_dict()
-                        patience_counter = 0  # reset patience counter on improvement
-                    else:
-                        patience_counter += 1  # increment patience counter if no improvement
 
                 # Save the trained model
                 torch.save(best_model_state, model_path)
