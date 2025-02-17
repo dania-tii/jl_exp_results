@@ -17,7 +17,7 @@ params = {
     'additional_features': ['mean_noise', 'std_noise', 'range_noise', 'dist_to_centroid', 'sin_azimuth', 'cos_azimuth'],
     'num_neighbors': 'fc',
     'edges': 'knn',  # opts: 'knn', 'proximity'
-    'norm': 'minmax',  # opts: 'minmax', 'unit_sphere'
+    'norm': 'unit_sphere',  # opts: 'minmax', 'unit_sphere'
     'activation': False,
     'max_nodes': 400,
     'filtering_proportion': 0.6,

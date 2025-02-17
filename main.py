@@ -21,12 +21,7 @@ def main():
     """
     Main function to run the training and evaluation.
     """
-    seeds = [1, 23, 42]
-
-    # Early stopping parameters
-    patience = 100
-    patience_counter = 0
-    early_stop = False
+    seeds = [1]
 
     if params['train_per_class']:
         if params['dynamic']:
@@ -150,12 +145,6 @@ def main():
                         patience_counter = 0  # reset patience counter on improvement
                     else:
                         patience_counter += 1  # increment patience counter if no improvement
-
-                    # # Early stopping check
-                    # if patience_counter > patience:
-                    #     early_stop = True
-                    #     print("Early stopping triggered")
-                    #     break
 
                 # Save the trained model
                 torch.save(best_model_state, model_path)
